@@ -2,35 +2,34 @@ package uk.ac.healthcare.repository;
 
 import uk.ac.healthcare.model.Patient;
 import uk.ac.healthcare.util.CsvUtils;
+
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 public class PatientRepository {
-    private final DataStore dataStore;
-    public PatientRepository(DataStore dataStore) {
-        this.dataStore = dataStore;
-}
-    public void loadPatients(String filePath) {
-        List<String> lines = CsvUtils.readLines(filePath);
-        for (int i = 1; i < lines.size(); i++) {
-            String[] cols = lines.get(i).split(",");
 
-            String patientId = cols[0];
-            String firstName = cols[1];
-            String lastName = cols[2];
-            String email = cols[3];
-            String nhsNumber = cols[4];
-            String surgeryId = cols[5];
+    private final DataStore store;
 
-            Patient patient = new Patient(
-                    patientId,
-                    firstName,
-                    lastName,
-                    email,
-                    nhsNumber,
-                    surgeryId
-            );
+    public PatientRepository(DataStore store) {
+        this.store = store;
+    }
 
-            dataStore.patients.put(patientId, patient);
+    public void load(Path csv) throws IOException {
+        List<Map<String, String>> rows = CsvUtils.read(csv);
+
+        for (Map<String, String> r : rows) {
+            String id = r.get("patient_id");
+            String first = r.get("first_name");
+            String last = r.get("last_name");
+            String email = r.get("email");
+            String nhs = r.get("nhs_number");
+            String facilityId = r.get("facility_id");
+
+            Patient p = new Patient(id, first, last, email, nhs, facilityId);
+            store.patients.put(id, p);
         }
     }
 }
+
