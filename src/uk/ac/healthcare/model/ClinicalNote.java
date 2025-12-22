@@ -7,8 +7,6 @@ public class ClinicalNote {
     private final String noteId;
     private final LocalDateTime timestamp;
     private String text;
-
-    // store clinician as ID to avoid circular references + easy CSV persistence
     private final String authorClinicianId;
 
     public ClinicalNote(String noteId, String authorClinicianId, LocalDateTime timestamp, String text) {
@@ -23,10 +21,21 @@ public class ClinicalNote {
         this.text = text.trim();
     }
 
-    public String getNoteId() { return noteId; }
-    public LocalDateTime getTimestamp() { return timestamp; }
-    public String getText() { return text; }
-    public String getAuthorClinicianId() { return authorClinicianId; }
+    public String getNoteId() {
+        return noteId;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public String getAuthorClinicianId() {
+        return authorClinicianId;
+    }
 
     public void updateText(String newText) {
         if (newText == null || newText.isBlank()) throw new IllegalArgumentException("newText required");

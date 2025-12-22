@@ -14,8 +14,12 @@ public final class TimeSlot {
         this.end = end;
     }
 
-    public LocalDateTime getStart() { return start; }
-    public LocalDateTime getEnd() { return end; }
+    public LocalDateTime getStart() {
+        return start;
+    }
+    public LocalDateTime getEnd() {
+        return end;
+    }
 
     public boolean overlaps(TimeSlot other) {
         return this.start.isBefore(other.end) && other.start.isBefore(this.end);

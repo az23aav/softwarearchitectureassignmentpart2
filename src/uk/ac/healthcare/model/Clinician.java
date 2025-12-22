@@ -15,8 +15,19 @@ public abstract class Clinician extends User {
         this.workplaceId = workplaceId;
     }
 
-    public String getClinicianId() { return clinicianId; }
-    public String getSpeciality() { return speciality; }
-    public String getRegistrationNo() { return registrationNo; }
-    public String getWorkplaceId() { return workplaceId; }
+    public String getClinicianId() {
+        return clinicianId;
+    }
+
+    public String getSpeciality() {
+        return speciality;
+    }
+
+    public String getRegistrationNo() {
+        return registrationNo;
+    }
+
+    public String getWorkplaceId() {
+        return workplaceId;
+    }
 }

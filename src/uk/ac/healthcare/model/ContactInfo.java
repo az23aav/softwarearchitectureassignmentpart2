@@ -13,8 +13,19 @@ public final class ContactInfo {
         this.postcode = postcode;
     }
 
-    public String getPhoneNumber() { return phoneNumber; }
-    public String getAddressLine() { return addressLine; }
-    public String getCity() { return city; }
-    public String getPostcode() { return postcode; }
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public String getAddressLine() {
+        return addressLine;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public String getPostcode() {
+        return postcode;
+    }
 }

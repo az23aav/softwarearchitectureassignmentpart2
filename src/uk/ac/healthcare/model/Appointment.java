@@ -33,17 +33,49 @@ public class Appointment {
         this.notes = notes;
     }
 
-    public String getAppointmentId() { return appointmentId; }
-    public String getPatientId() { return patientId; }
-    public String getClinicianId() { return clinicianId; }
-    public String getFacilityId() { return facilityId; }
-    public LocalDate getDate() { return date; }
-    public LocalTime getTime() { return time; }
-    public int getDurationMinutes() { return durationMinutes; }
-    public String getType() { return type; }
-    public AppointmentStatus getStatus() { return status; }
-    public String getReason() { return reason; }
-    public String getNotes() { return notes; }
+    public String getAppointmentId() {
+        return appointmentId;
+    }
+
+    public String getPatientId() {
+        return patientId;
+    }
+
+    public String getClinicianId() {
+        return clinicianId;
+    }
+
+    public String getFacilityId() {
+        return facilityId;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public LocalTime getTime() {
+        return time;
+    }
+
+    public int getDurationMinutes() {
+        return durationMinutes;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public AppointmentStatus getStatus() {
+        return status;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
 
     public void modify(LocalDate newDate, LocalTime newTime, int newDurationMinutes) {
         this.date = newDate;

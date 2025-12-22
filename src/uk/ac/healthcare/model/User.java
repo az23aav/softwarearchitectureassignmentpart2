@@ -13,10 +13,23 @@ public abstract class User {
         this.email = email;
     }
 
-    public String getUserId() { return userId; }
-    public String getFirstName() { return firstName; }
-    public String getLastName() { return lastName; }
-    public String getEmail() { return email; }
+    public String getUserId() {
+        return userId;
+    }
 
-    public String getDisplayName() { return firstName + " " + lastName; }
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getDisplayName() {
+        return firstName + " " + lastName;
+    }
 }

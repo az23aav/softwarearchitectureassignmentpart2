@@ -13,7 +13,15 @@ public class AdminStaff extends User {
         this.accessLevel = accessLevel;
     }
 
-    public String getRole() { return role; }
-    public String getFacilityId() { return facilityId; }
-    public String getAccessLevel() { return accessLevel; }
+    public String getRole() {
+        return role;
+    }
+
+    public String getFacilityId() {
+        return facilityId;
+    }
+
+    public String getAccessLevel() {
+        return accessLevel;
+    }
 }

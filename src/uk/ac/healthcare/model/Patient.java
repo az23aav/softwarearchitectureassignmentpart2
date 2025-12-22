@@ -9,8 +9,18 @@ public class Patient extends User {
         super(patientId, firstName, lastName, email);
         this.nhsNumber = nhsNumber;
         this.registeredSurgeryId = registeredSurgeryId;
+        this.medicalRecord = new MedicalRecord(patientId);
     }
 
-    public String getNhsNumber() { return nhsNumber; }
-    public String getRegisteredSurgeryId() { return registeredSurgeryId; }
+    public MedicalRecord getMedicalRecord() {
+        return medicalRecord;
+    }
+
+    public String getNhsNumber() {
+        return nhsNumber;
+    }
+
+    public String getRegisteredSurgeryId() {
+        return registeredSurgeryId;
+    }
 }

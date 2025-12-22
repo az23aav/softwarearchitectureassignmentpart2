@@ -40,17 +40,43 @@ public class Referral {
         this.notes = notes;
     }
 
-    public String getReferralId() { return referralId; }
-    public String getPatientId() { return patientId; }
-    public String getReferringClinicianId() { return referringClinicianId; }
-    public String getReferredToClinicianId() { return referredToClinicianId; }
-    public String getReferringFacilityId() { return referringFacilityId; }
-    public String getReferredToFacilityId() { return referredToFacilityId; }
-    public ReferralStatus getStatus() { return status; }
+    public String getReferralId() {
+        return referralId;
+    }
 
-    public void markSent() { this.status = ReferralStatus.SENT; }
-    public void markReceived() { this.status = ReferralStatus.RECEIVED; }
-    public void close() { this.status = ReferralStatus.CLOSED; }
+    public String getPatientId() {
+        return patientId;
+    }
+
+    public String getReferringClinicianId() {
+        return referringClinicianId;
+    }
+
+    public String getReferredToClinicianId() {
+        return referredToClinicianId;
+    }
+
+    public String getReferringFacilityId() {
+        return referringFacilityId;
+    }
+
+    public String getReferredToFacilityId() {
+        return referredToFacilityId;
+    }
+
+    public ReferralStatus getStatus() {
+        return status;
+    }
+
+    public void markSent() {
+        this.status = ReferralStatus.SENT;
+    }
+    public void markReceived() {
+        this.status = ReferralStatus.RECEIVED;
+    }
+    public void close() {
+        this.status = ReferralStatus.CLOSED;
+    }
 
     public String toEmailText() {
         return "REFERRAL: " + referralId + "\n" +
