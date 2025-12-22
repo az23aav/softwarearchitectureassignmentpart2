@@ -66,7 +66,7 @@ public class PrescriptionRepository {
             store.prescriptions.put(prescriptionId, prescription);
         }
     }
-    
+
     private static String get(Map<String, String> r, String key) {
         String v = r.get(key);
         return v == null ? "" : v.trim();
