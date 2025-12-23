@@ -9,22 +9,22 @@ public class Prescription {
     private final String appointmentId;
 
     private final LocalDate prescriptionDate;
-    private final Drug drug;
+    private final String drug;
     private String dosage;
     private String frequency;
-    private int durationDays;
-    private int quantity;
+    private String durationDays;
+    private String quantity;
     private String instructions;
     private String pharmacyName;
     private PrescriptionStatus status;
     private LocalDate issueDate;
     private LocalDate collectionDate;
 
-    private final Condition condition;
+    private final String condition;
 
     public Prescription(String prescriptionId, String patientId, String clinicianId, String appointmentId,
-                        LocalDate prescriptionDate, Drug drug, Condition condition,
-                        String dosage, String frequency, int durationDays, int quantity,
+                        LocalDate prescriptionDate, String drug, String condition,
+                        String dosage, String frequency, String durationDays, String quantity,
                         String instructions, String pharmacyName, PrescriptionStatus status,
                         LocalDate issueDate, LocalDate collectionDate) {
         this.prescriptionId = prescriptionId;
@@ -49,8 +49,8 @@ public class Prescription {
     public String getPatientId() { return patientId; }
     public String getClinicianId() { return clinicianId; }
     public String getAppointmentId() { return appointmentId; }
-    public Drug getDrug() { return drug; }
-    public Condition getCondition() { return condition; }
+    public String getDrug() { return drug; }
+    public String getCondition() { return condition; }
     public PrescriptionStatus getStatus() { return status; }
 
     public String toFileContent() {

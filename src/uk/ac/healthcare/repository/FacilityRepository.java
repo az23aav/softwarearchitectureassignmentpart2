@@ -30,9 +30,10 @@ public class FacilityRepository {
             String opening = r.get("opening_hours");
             String manager = r.get("manager_name");
 
-            int capacity = r.get("capacity").isBlank()
+            String capRaw = r.get("capacity");
+            int capacity = (capRaw == null || capRaw.isBlank())
                     ? 0
-                    : Integer.parseInt(r.get("capacity"));
+                    : Integer.parseInt(capRaw.trim());
 
             String specialties = r.get("specialties_offered");
 
