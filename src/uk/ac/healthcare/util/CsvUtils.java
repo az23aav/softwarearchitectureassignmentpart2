@@ -63,4 +63,8 @@ public class CsvUtils {
         out.add(cur.toString());
         return out;
     }
+    public static void writeLines(Path file, List<String> lines) throws IOException {
+        Files.createDirectories(file.getParent());
+        Files.write(file, lines);
+    }
 }
