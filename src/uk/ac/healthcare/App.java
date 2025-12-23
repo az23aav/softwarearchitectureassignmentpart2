@@ -12,6 +12,7 @@ public class App {
     public static void start() {
         // Model store
         DataStore store = new DataStore();
+        Path dataDir = Path.of("data");
 
         // Repositories
         FacilityRepository facilityRepo = new FacilityRepository(store);
@@ -47,10 +48,10 @@ public class App {
         }
 
         // Controllers
-        PatientController patientController = new PatientController(store);
+        PatientController patientController = new PatientController(store, patientRepo, dataDir);
 
         SwingUtilities.invokeLater(() -> {
-            MainFrame frame = new MainFrame(patientController);
+            MainFrame frame = new MainFrame(patientController, patientRepo, dataDir);
             frame.setVisible(true);
         });
     }

@@ -2,22 +2,31 @@ package uk.ac.healthcare.view;
 
 import uk.ac.healthcare.controller.PatientController;
 import uk.ac.healthcare.model.Patient;
+import uk.ac.healthcare.repository.PatientRepository;
 
 import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
 import java.awt.*;
+import java.nio.file.Path;
+import java.util.List;
 
 public class PatientPanel extends JPanel {
 
     private final PatientController controller;
+    private final PatientRepository patientRepo;
+    private final Path dataDir;
+
     private final PatientTableModel tableModel = new PatientTableModel();
     private final JTable table = new JTable(tableModel);
 
-    public PatientPanel(PatientController controller) {
+    public PatientPanel(PatientController controller, PatientRepository patientRepo, Path dataDir) {
         this.controller = controller;
+        this.patientRepo = patientRepo;
+        this.dataDir = dataDir;
 
         setLayout(new BorderLayout(10, 10));
 
-        // Top buttons
+        // TOP BUTTONS
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton refreshBtn = new JButton("Refresh");
         JButton addBtn = new JButton("Add");
@@ -26,92 +35,124 @@ public class PatientPanel extends JPanel {
         top.add(refreshBtn);
         top.add(addBtn);
         top.add(deleteBtn);
-
         add(top, BorderLayout.NORTH);
 
-        // Table
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        // TABLE
+        table.setFillsViewportHeight(true);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
-        // Wire actions
-        refreshBtn.addActionListener(e -> refresh());
-        addBtn.addActionListener(e -> addPatientDialog());
-        deleteBtn.addActionListener(e -> deleteSelected());
+        // BUTTON ACTIONS
 
-        // Initial load
-        refresh();
+        refreshBtn.addActionListener(e -> refreshTable());
+
+        addBtn.addActionListener(e -> addPatient());
+
+        deleteBtn.addActionListener(e -> deletePatient());
+
+        // Load at startup
+        refreshTable();
     }
 
-    private void refresh() {
-        tableModel.setPatients(controller.getAll());
-    }
+    // ADD NEW PATIENT
+    private void addPatient() {
+        String id = JOptionPane.showInputDialog(this, "Enter Patient ID:");
+        if (id == null || id.isBlank()) return;
 
-    private void addPatientDialog() {
-        JTextField id = new JTextField();
-        JTextField first = new JTextField();
-        JTextField last = new JTextField();
-        JTextField email = new JTextField();
-        JTextField nhs = new JTextField();
-        JTextField surgery = new JTextField();
+        String first = JOptionPane.showInputDialog(this, "Enter First Name:");
+        String last = JOptionPane.showInputDialog(this, "Enter Last Name:");
+        String email = JOptionPane.showInputDialog(this, "Enter Email:");
+        String nhs = JOptionPane.showInputDialog(this, "Enter NHS Number:");
+        String facility = JOptionPane.showInputDialog(this, "Enter GP Surgery ID:");
 
-        JPanel form = new JPanel(new GridLayout(0, 2, 8, 8));
-        form.add(new JLabel("Patient ID:")); form.add(id);
-        form.add(new JLabel("First name:")); form.add(first);
-        form.add(new JLabel("Last name:")); form.add(last);
-        form.add(new JLabel("Email:")); form.add(email);
-        form.add(new JLabel("NHS number:")); form.add(nhs);
-        form.add(new JLabel("Registered surgery ID:")); form.add(surgery);
-
-        int result = JOptionPane.showConfirmDialog(
-                this,
-                form,
-                "Add Patient",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE
-        );
-
-        if (result != JOptionPane.OK_OPTION) return;
-
-        // basic validation
-        if (id.getText().isBlank() || first.getText().isBlank() || last.getText().isBlank()) {
-            JOptionPane.showMessageDialog(this, "Patient ID, first name, last name are required.");
-            return;
-        }
-
-        Patient p = new Patient(
-                id.getText().trim(),
-                first.getText().trim(),
-                last.getText().trim(),
-                email.getText().trim(),
-                nhs.getText().trim(),
-                surgery.getText().trim()
-        );
-
+        Patient p = new Patient(id, first, last, email, nhs, facility);
         controller.add(p);
-        refresh();
+
+        saveCSV();
+        refreshTable();
     }
 
-    private void deleteSelected() {
+
+    // DELETE PATIENT
+    private void deletePatient() {
         int row = table.getSelectedRow();
-        if (row < 0) {
-            JOptionPane.showMessageDialog(this, "Select a patient row first.");
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Select a patient first.");
             return;
         }
 
-        Patient p = tableModel.getPatientAt(row);
-        if (p == null) return;
+        String id = (String) tableModel.getValueAt(row, 0);
+        controller.delete(id);
 
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "Delete patient " + p.getUserId() + "?",
-                "Confirm delete",
-                JOptionPane.YES_NO_OPTION
-        );
+        saveCSV();
+        refreshTable();
+    }
 
-        if (confirm != JOptionPane.YES_OPTION) return;
 
-        controller.delete(p.getUserId());
-        refresh();
+    // SAVE TO CSV
+    private void saveCSV() {
+        try {
+            patientRepo.save(dataDir.resolve("patients.csv"));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Failed to save CSV:\n" + ex.getMessage(),
+                    "Save Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // REFRESH TABLE DATA
+    private void refreshTable() {
+        List<Patient> patients = controller.getAll();
+        tableModel.setPatients(patients);
+    }
+
+    // TABLE MODEL
+    private static class PatientTableModel extends AbstractTableModel {
+
+        private List<Patient> patients = List.of();
+
+        private final String[] columns = {
+                "Patient ID",
+                "First Name",
+                "Last Name",
+                "Email",
+                "NHS Number",
+                "GP Surgery ID"
+        };
+
+        public void setPatients(List<Patient> patients) {
+            this.patients = patients;
+            fireTableDataChanged();
+        }
+
+        @Override
+        public int getRowCount() {
+            return patients.size();
+        }
+
+        @Override
+        public int getColumnCount() {
+            return columns.length;
+        }
+
+        @Override
+        public String getColumnName(int column) {
+            return columns[column];
+        }
+
+        @Override
+        public Object getValueAt(int row, int col) {
+            Patient p = patients.get(row);
+            return switch (col) {
+                case 0 -> p.getUserId();
+                case 1 -> p.getFirstName();
+                case 2 -> p.getLastName();
+                case 3 -> p.getEmail();
+                case 4 -> p.getNhsNumber();
+                case 5 -> p.getRegisteredSurgeryId();
+                default -> "";
+            };
+        }
     }
 }
-
