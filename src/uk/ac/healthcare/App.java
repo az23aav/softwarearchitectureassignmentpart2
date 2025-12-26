@@ -1,7 +1,6 @@
 package uk.ac.healthcare;
 
-import uk.ac.healthcare.controller.AppointmentController;
-import uk.ac.healthcare.controller.PatientController;
+import uk.ac.healthcare.controller.*;
 import uk.ac.healthcare.repository.*;
 import uk.ac.healthcare.view.*;
 
@@ -11,7 +10,7 @@ import java.nio.file.Path;
 public class App {
 
     public static void start() {
-        // Model store
+
         DataStore store = new DataStore();
         Path dataDir = Path.of("data");
 
@@ -22,6 +21,8 @@ public class App {
         StaffRepository staffRepo = new StaffRepository(store);
         AppointmentRepository appointmentRepo = new AppointmentRepository(store);
         PrescriptionRepository prescriptionRepo = new PrescriptionRepository(store);
+
+        // If you later convert this to Singleton, change it to ReferralRepository.getInstance(store)
         ReferralRepository referralRepo = new ReferralRepository(store);
 
         // Loader
@@ -36,9 +37,8 @@ public class App {
                 referralRepo
         );
 
-        // Load CSVs from /data folder (project root)
         try {
-            loader.loadAll(Path.of("data"));
+            loader.loadAll(dataDir);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(
                     null,
@@ -50,14 +50,15 @@ public class App {
 
         // Controllers
         PatientController patientController = new PatientController(store, patientRepo, dataDir);
-
         AppointmentController appointmentController = new AppointmentController(store, appointmentRepo, dataDir);
+        ClinicianController clinicianController = new ClinicianController(store, clinicianRepo, dataDir);
 
         SwingUtilities.invokeLater(() -> {
             PatientPanel patientPanel = new PatientPanel(patientController, patientRepo, dataDir);
             AppointmentPanel appointmentPanel = new AppointmentPanel(appointmentController);
+            ClinicianPanel clinicianPanel = new ClinicianPanel(clinicianController);
 
-            MainFrame frame = new MainFrame(patientPanel, appointmentPanel);
+            MainFrame frame = new MainFrame(patientPanel, appointmentPanel, clinicianPanel);
             frame.setVisible(true);
         });
     }
