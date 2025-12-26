@@ -1,8 +1,9 @@
 package uk.ac.healthcare;
 
+import uk.ac.healthcare.controller.AppointmentController;
 import uk.ac.healthcare.controller.PatientController;
 import uk.ac.healthcare.repository.*;
-import uk.ac.healthcare.view.MainFrame;
+import uk.ac.healthcare.view.*;
 
 import javax.swing.*;
 import java.nio.file.Path;
@@ -50,8 +51,13 @@ public class App {
         // Controllers
         PatientController patientController = new PatientController(store, patientRepo, dataDir);
 
+        AppointmentController appointmentController = new AppointmentController(store, appointmentRepo, dataDir);
+
         SwingUtilities.invokeLater(() -> {
-            MainFrame frame = new MainFrame(patientController, patientRepo, dataDir);
+            PatientPanel patientPanel = new PatientPanel(patientController, patientRepo, dataDir);
+            AppointmentPanel appointmentPanel = new AppointmentPanel(appointmentController);
+
+            MainFrame frame = new MainFrame(patientPanel, appointmentPanel);
             frame.setVisible(true);
         });
     }

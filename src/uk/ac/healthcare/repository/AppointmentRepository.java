@@ -5,12 +5,11 @@ import uk.ac.healthcare.model.AppointmentStatus;
 import uk.ac.healthcare.util.CsvUtils;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AppointmentRepository {
 
@@ -24,95 +23,132 @@ public class AppointmentRepository {
         List<Map<String, String>> rows = CsvUtils.read(csv);
 
         for (Map<String, String> r : rows) {
+            String id = get(r, "appointment_id");
+            String patientId = get(r, "patient_id");
+            String clinicianId = get(r, "clinician_id");
+            String facilityId = get(r, "facility_id");
 
-            String appointmentId = get(r, "appointment_id");
-            String patientId     = get(r, "patient_id");
-            String clinicianId   = get(r, "clinician_id");
-            String facilityId    = get(r, "facility_id");
+            LocalDate date = parseDate(get(r, "appointment_date"));
+            LocalTime time = parseTime(get(r, "appointment_time"));
 
-            LocalDate date = parseDateOrNull(get(r, "appointment_date"));
-            LocalTime time = parseTimeOrNull(get(r, "appointment_time"));
+            int duration = intOrZero(get(r, "duration_minutes"));
+            String type = get(r, "appointment_type");
 
-            int durationMinutes = intOrZero(get(r, "duration_minutes"));
-            String type   = get(r, "appointment_type");
             AppointmentStatus status = parseStatus(get(r, "status"));
-
             String reason = get(r, "reason_for_visit");
-            String notes  = get(r, "notes");
+            String notes = get(r, "notes");
 
-            // created_date + last_modified exist in CSV but your model doesn't store them -> ignore for now
-            Appointment appt = new Appointment(
-                    appointmentId,
-                    patientId,
-                    clinicianId,
-                    facilityId,
-                    date,
-                    time,
-                    durationMinutes,
-                    type,
-                    status,
-                    reason,
-                    notes
+            Appointment a = new Appointment(
+                    id, patientId, clinicianId, facilityId,
+                    date, time, duration, type, status, reason, notes
             );
 
-            store.appointments.put(appointmentId, appt);
+            store.appointments.put(id, a);
         }
     }
 
-    // ---------- helpers ----------
+    public void save(Path csv) throws IOException {
+        List<String> lines = new ArrayList<>();
+
+        // header must match your appointments.csv columns
+        lines.add(String.join(",",
+                "appointment_id",
+                "patient_id",
+                "clinician_id",
+                "facility_id",
+                "appointment_date",
+                "appointment_time",
+                "duration_minutes",
+                "appointment_type",
+                "status",
+                "reason_for_visit",
+                "notes",
+                "created_date",
+                "last_modified"
+        ));
+
+        for (Appointment a : store.appointments.values()) {
+            String appointmentId = safe(a.getAppointmentId());
+            String patientId = safe(a.getPatientId());
+            String clinicianId = safe(a.getClinicianId());
+            String facilityId = safe(a.getFacilityId());
+
+            String date = (a.getDate() == null) ? "" : a.getDate().toString();
+            String time = (a.getTime() == null) ? "" : a.getTime().toString();
+
+            String duration = String.valueOf(a.getDurationMinutes());
+            String type = safe(a.getType());
+            String status = (a.getStatus() == null) ? "" : a.getStatus().name();
+            String reason = safe(a.getReason());
+            String notes = safe(a.getNotes());
+
+            // you don't store created/modified in model yet -> write empty
+            String created = "";
+            String modified = "";
+
+            lines.add(String.join(",",
+                    csvEscape(appointmentId),
+                    csvEscape(patientId),
+                    csvEscape(clinicianId),
+                    csvEscape(facilityId),
+                    csvEscape(date),
+                    csvEscape(time),
+                    csvEscape(duration),
+                    csvEscape(type),
+                    csvEscape(status),
+                    csvEscape(reason),
+                    csvEscape(notes),
+                    csvEscape(created),
+                    csvEscape(modified)
+            ));
+        }
+
+        Files.write(csv, lines);
+    }
 
     private static String get(Map<String, String> r, String key) {
         String v = r.get(key);
         return v == null ? "" : v.trim();
     }
 
-    private static int intOrZero(String raw) {
-        if (raw == null) return 0;
-        raw = raw.trim();
-        if (raw.isEmpty()) return 0;
-        try {
-            return Integer.parseInt(raw);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
+    private static int intOrZero(String s) {
+        if (s == null) return 0;
+        s = s.trim();
+        if (s.isEmpty()) return 0;
+        try { return Integer.parseInt(s); }
+        catch (Exception e) { return 0; }
     }
 
-    private static LocalDate parseDateOrNull(String raw) {
-        if (raw == null) return null;
-        raw = raw.trim();
-        if (raw.isEmpty()) return null;
-        try {
-            return LocalDate.parse(raw); // yyyy-MM-dd
-        } catch (DateTimeParseException e) {
-            return null;
-        }
+    private static LocalDate parseDate(String s) {
+        if (s == null) return null;
+        s = s.trim();
+        if (s.isEmpty()) return null;
+        return LocalDate.parse(s);
     }
 
-    private static LocalTime parseTimeOrNull(String raw) {
-        if (raw == null) return null;
-        raw = raw.trim();
-        if (raw.isEmpty()) return null;
-        try {
-            return LocalTime.parse(raw); // HH:mm
-        } catch (DateTimeParseException e) {
-            return null;
-        }
+    private static LocalTime parseTime(String s) {
+        if (s == null) return null;
+        s = s.trim();
+        if (s.isEmpty()) return null;
+        return LocalTime.parse(s);
     }
 
-    private static AppointmentStatus parseStatus(String raw) {
-        if (raw == null) return AppointmentStatus.SCHEDULED;
-        raw = raw.trim().toUpperCase();
+    private static AppointmentStatus parseStatus(String s) {
+        if (s == null) return AppointmentStatus.SCHEDULED;
+        s = s.trim();
+        if (s.isEmpty()) return AppointmentStatus.SCHEDULED;
+        return AppointmentStatus.valueOf(s.toUpperCase());
+    }
 
-        // Handle CSV values like "Scheduled", "Cancelled"
-        if (raw.startsWith("SCHED")) return AppointmentStatus.SCHEDULED;
-        if (raw.startsWith("CANC"))  return AppointmentStatus.CANCELLED;
-        if (raw.startsWith("COMP"))  return AppointmentStatus.COMPLETED;
+    private static String safe(String s) {
+        return s == null ? "" : s;
+    }
 
-        // Fallback: try enum direct
-        try {
-            return AppointmentStatus.valueOf(raw);
-        } catch (Exception e) {
-            return AppointmentStatus.SCHEDULED;
-        }
+    // quotes CSV values that contain commas/quotes/newlines
+    private static String csvEscape(String s) {
+        if (s == null) return "";
+        boolean needsQuotes = s.contains(",") || s.contains("\"") || s.contains("\n") || s.contains("\r");
+        if (!needsQuotes) return s;
+        return "\"" + s.replace("\"", "\"\"") + "\"";
     }
 }
