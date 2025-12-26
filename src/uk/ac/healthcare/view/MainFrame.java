@@ -16,8 +16,8 @@ public class MainFrame extends JFrame {
 
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Patients", patientPanel);
-        tabs.addTab("Appointments", appointmentPanel);
         tabs.addTab("Clinicians", clinicianPanel);
+        tabs.addTab("Appointments", appointmentPanel);
         tabs.addTab("Prescriptions", prescriptionPanel);
 
         setLayout(new BorderLayout());
