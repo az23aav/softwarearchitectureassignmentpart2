@@ -31,11 +31,14 @@ public class PatientPanel extends JPanel {
         JButton refreshBtn = new JButton("Refresh");
         JButton addBtn = new JButton("Add");
         JButton deleteBtn = new JButton("Delete");
+        JButton saveBtn = new JButton("Save");
 
         top.add(refreshBtn);
         top.add(addBtn);
         top.add(deleteBtn);
+        top.add(saveBtn);
         add(top, BorderLayout.NORTH);
+
 
         // TABLE
         table.setFillsViewportHeight(true);
@@ -48,6 +51,18 @@ public class PatientPanel extends JPanel {
         addBtn.addActionListener(e -> addPatient());
 
         deleteBtn.addActionListener(e -> deletePatient());
+
+        saveBtn.addActionListener(e -> {
+            try {
+                controller.save();
+                JOptionPane.showMessageDialog(this, "Saved to data/patients.csv");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this,
+                        "Save failed:\n" + ex.getMessage(),
+                        "Save Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        });
 
         // Load at startup
         refreshTable();

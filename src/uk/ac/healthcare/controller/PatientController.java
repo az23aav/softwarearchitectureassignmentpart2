@@ -11,13 +11,13 @@ import java.util.List;
 public class PatientController {
 
     private final DataStore store;
-    private final PatientRepository repo;
-    private final Path patientsCsv;
+    private final PatientRepository patientRepo;
+    private final Path dataDir;
 
-    public PatientController(DataStore store, PatientRepository repo, Path patientsCsv) {
+    public PatientController(DataStore store, PatientRepository patientRepo, Path dataDir) {
         this.store = store;
-        this.repo = repo;
-        this.patientsCsv = patientsCsv;
+        this.patientRepo = patientRepo;
+        this.dataDir = dataDir;
     }
 
     public List<Patient> getAll() {
@@ -26,24 +26,23 @@ public class PatientController {
 
     public void add(Patient patient) {
         store.patients.put(patient.getUserId(), patient);
-        saveNow();
     }
 
     public void delete(String patientId) {
         store.patients.remove(patientId);
-        saveNow();
     }
 
     public Patient getById(String patientId) {
         return store.patients.get(patientId);
     }
 
-    private void saveNow() {
+    public void save() {
         try {
-            repo.save(patientsCsv);
+            patientRepo.save(dataDir.resolve("patients.csv"));
         } catch (Exception e) {
             throw new RuntimeException("Failed to save patients.csv", e);
         }
     }
 }
+
 
