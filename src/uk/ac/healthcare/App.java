@@ -52,13 +52,15 @@ public class App {
         PatientController patientController = new PatientController(store, patientRepo, dataDir);
         AppointmentController appointmentController = new AppointmentController(store, appointmentRepo, dataDir);
         ClinicianController clinicianController = new ClinicianController(store, clinicianRepo, dataDir);
+        PrescriptionController prescriptionController = new PrescriptionController(store, prescriptionRepo, dataDir);
 
         SwingUtilities.invokeLater(() -> {
             PatientPanel patientPanel = new PatientPanel(patientController, patientRepo, dataDir);
             AppointmentPanel appointmentPanel = new AppointmentPanel(appointmentController);
             ClinicianPanel clinicianPanel = new ClinicianPanel(clinicianController);
+            PrescriptionPanel prescriptionPanel = new PrescriptionPanel(prescriptionController);
 
-            MainFrame frame = new MainFrame(patientPanel, appointmentPanel, clinicianPanel);
+            MainFrame frame = new MainFrame(patientPanel, appointmentPanel, clinicianPanel, prescriptionPanel);
             frame.setVisible(true);
         });
     }

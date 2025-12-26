@@ -1,11 +1,14 @@
 package uk.ac.healthcare.repository;
 
-import uk.ac.healthcare.model.*;
+import uk.ac.healthcare.model.Prescription;
+import uk.ac.healthcare.model.PrescriptionStatus;
 import uk.ac.healthcare.util.CsvUtils;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,22 +30,24 @@ public class PrescriptionRepository {
             String appointmentId = get(r, "appointment_id");
 
             LocalDate prescriptionDate = parseDateOrNull(get(r, "prescription_date"));
-            String medicationName = get(r, "medication_name"); // your CSV header
+
+            String drug = get(r, "medication_name");     // column name in CSV
+            String condition = "UNKNOWN";                // you don’t have it in CSV
+
             String dosage = get(r, "dosage");
             String frequency = get(r, "frequency");
-            String durationDays = get(r, "duration_days");      // keep as STRING (e.g. "28")
-            String quantity = extractLeadingIntAsString(get(r, "quantity")); // "28 tablets" -> "28"
+            String durationDays = get(r, "duration_days");
+            String quantity = get(r, "quantity");
+
             String instructions = get(r, "instructions");
             String pharmacyName = get(r, "pharmacy_name");
 
-            PrescriptionStatus status = parsePrescriptionStatus(get(r, "status"));
+            PrescriptionStatus status = parseStatusOrNull(get(r, "status"));
+
             LocalDate issueDate = parseDateOrNull(get(r, "issue_date"));
             LocalDate collectionDate = parseDateOrNull(get(r, "collection_date"));
 
-            String drug = medicationName;
-            String condition = "UNKNOWN";
-
-            Prescription prescription = new Prescription(
+            Prescription p = new Prescription(
                     prescriptionId,
                     patientId,
                     clinicianId,
@@ -61,10 +66,55 @@ public class PrescriptionRepository {
                     collectionDate
             );
 
-            store.prescriptions.put(prescriptionId, prescription);
+            store.prescriptions.put(prescriptionId, p);
         }
     }
 
+    public void save(Path csv) throws IOException {
+        List<String> lines = new ArrayList<>();
+
+        lines.add(String.join(",",
+                "prescription_id",
+                "patient_id",
+                "clinician_id",
+                "appointment_id",
+                "prescription_date",
+                "medication_name",
+                "dosage",
+                "frequency",
+                "duration_days",
+                "quantity",
+                "instructions",
+                "pharmacy_name",
+                "status",
+                "issue_date",
+                "collection_date"
+        ));
+
+        for (Prescription p : store.prescriptions.values()) {
+            lines.add(String.join(",",
+                    esc(p.getPrescriptionId()),
+                    esc(p.getPatientId()),
+                    esc(p.getClinicianId()),
+                    esc(p.getAppointmentId()),
+                    esc(dateToStr(p.getPrescriptionDate())),
+                    esc(p.getDrug()),
+                    esc(p.getDosage()),
+                    esc(p.getFrequency()),
+                    esc(p.getDurationDays()),
+                    esc(p.getQuantity()),
+                    esc(p.getInstructions()),
+                    esc(p.getPharmacyName()),
+                    esc(p.getStatus() == null ? "" : p.getStatus().name()),
+                    esc(dateToStr(p.getIssueDate())),
+                    esc(dateToStr(p.getCollectionDate()))
+            ));
+        }
+
+        Files.write(csv, lines);
+    }
+
+    // ---------- helpers ----------
     private static String get(Map<String, String> r, String key) {
         String v = r.get(key);
         return v == null ? "" : v.trim();
@@ -74,28 +124,25 @@ public class PrescriptionRepository {
         if (raw == null) return null;
         raw = raw.trim();
         if (raw.isEmpty()) return null;
-        return LocalDate.parse(raw); // yyyy-MM-dd
+        return LocalDate.parse(raw);
     }
 
-    private static PrescriptionStatus parsePrescriptionStatus(String raw) {
-        if (raw == null || raw.isBlank()) return PrescriptionStatus.ISSUED;
-        String norm = raw.trim().toUpperCase().replace(' ', '_');
-        // CSV uses "Issued" / "Collected"
-        return PrescriptionStatus.valueOf(norm);
-    }
-
-    // turns "28 tablets" -> "28", "" -> "0", "7" -> "7"
-    private static String extractLeadingIntAsString(String raw) {
-        if (raw == null) return "0";
+    private static PrescriptionStatus parseStatusOrNull(String raw) {
+        if (raw == null) return null;
         raw = raw.trim();
-        if (raw.isEmpty()) return "0";
+        if (raw.isEmpty()) return null;
+        return PrescriptionStatus.valueOf(raw.toUpperCase());
+    }
 
-        StringBuilder digits = new StringBuilder();
-        for (int i = 0; i < raw.length(); i++) {
-            char c = raw.charAt(i);
-            if (Character.isDigit(c)) digits.append(c);
-            else break;
-        }
-        return digits.length() == 0 ? "0" : digits.toString();
+    private static String dateToStr(LocalDate d) {
+        return d == null ? "" : d.toString();
+    }
+
+    // CSV escaping (commas/quotes/newlines)
+    private static String esc(String s) {
+        if (s == null) return "";
+        boolean needs = s.contains(",") || s.contains("\"") || s.contains("\n") || s.contains("\r");
+        if (!needs) return s;
+        return "\"" + s.replace("\"", "\"\"") + "\"";
     }
 }

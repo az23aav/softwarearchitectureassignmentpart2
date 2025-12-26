@@ -52,6 +52,15 @@ public class Prescription {
     public String getDrug() { return drug; }
     public String getCondition() { return condition; }
     public PrescriptionStatus getStatus() { return status; }
+    public LocalDate getPrescriptionDate() { return prescriptionDate; }
+    public String getDosage() { return dosage; }
+    public String getFrequency() { return frequency; }
+    public String getDurationDays() { return durationDays; }
+    public String getQuantity() { return quantity; }
+    public String getInstructions() { return instructions; }
+    public String getPharmacyName() { return pharmacyName; }
+    public LocalDate getIssueDate() { return issueDate; }
+    public LocalDate getCollectionDate() { return collectionDate; }
 
     public String toFileContent() {
         return "Prescription ID: " + prescriptionId + "\n" +
