@@ -24,7 +24,15 @@ public class ClinicianController {
         return new ArrayList<>(store.clinicians.values());
     }
 
+    public Clinician getById(String id) {
+        return store.clinicians.get(id);
+    }
+
     public void add(Clinician c) {
+        store.clinicians.put(c.getClinicianId(), c);
+    }
+
+    public void update(Clinician c) {
         store.clinicians.put(c.getClinicianId(), c);
     }
 

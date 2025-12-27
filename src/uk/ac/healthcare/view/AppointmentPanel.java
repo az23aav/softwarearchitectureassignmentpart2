@@ -26,9 +26,11 @@ public class AppointmentPanel extends JPanel {
         JButton addBtn = new JButton("Add");
         JButton deleteBtn = new JButton("Delete");
         JButton saveBtn = new JButton("Save");
+        JButton editBtn = new JButton("Edit");
 
         top.add(refreshBtn);
         top.add(addBtn);
+        top.add(editBtn);
         top.add(deleteBtn);
         top.add(saveBtn);
 
@@ -37,6 +39,7 @@ public class AppointmentPanel extends JPanel {
 
         refreshBtn.addActionListener(e -> refresh());
         addBtn.addActionListener(e -> addAppointment());
+        editBtn.addActionListener(e -> editSelectedAppointment());
         deleteBtn.addActionListener(e -> deleteSelected());
         saveBtn.addActionListener(e -> {
             controller.saveNow();
@@ -45,6 +48,113 @@ public class AppointmentPanel extends JPanel {
 
         refresh();
     }
+
+    private void editSelectedAppointment() {
+        int viewRow = table.getSelectedRow();
+        if (viewRow < 0) {
+            JOptionPane.showMessageDialog(this, "Select an appointment first.");
+            return;
+        }
+
+        int modelRow = table.convertRowIndexToModel(viewRow);
+        Appointment existing = tableModel.getAt(modelRow);
+        if (existing == null) return;
+
+        JTextField dateField = new JTextField(existing.getDate() == null ? "" : existing.getDate().toString());   // yyyy-MM-dd
+        JTextField timeField = new JTextField(existing.getTime() == null ? "" : existing.getTime().toString());   // HH:mm
+        JTextField durationField = new JTextField(String.valueOf(existing.getDurationMinutes()));
+        JTextField typeField = new JTextField(existing.getType() == null ? "" : existing.getType());
+        JTextField reasonField = new JTextField(existing.getReason() == null ? "" : existing.getReason());
+
+        JTextArea notesArea = new JTextArea(existing.getNotes() == null ? "" : existing.getNotes(), 4, 20);
+        JScrollPane notesScroll = new JScrollPane(notesArea);
+
+        JComboBox<AppointmentStatus> statusBox = new JComboBox<>(AppointmentStatus.values());
+        statusBox.setSelectedItem(existing.getStatus());
+
+        JTextField idField = new JTextField(existing.getAppointmentId());
+        idField.setEditable(false);
+
+        JTextField patientIdField = new JTextField(existing.getPatientId());
+        patientIdField.setEditable(false);
+
+        JTextField clinicianIdField = new JTextField(existing.getClinicianId());
+        clinicianIdField.setEditable(false);
+
+        JTextField facilityIdField = new JTextField(existing.getFacilityId());
+        facilityIdField.setEditable(false);
+
+        JPanel form = new JPanel(new GridLayout(0, 2, 8, 8));
+        form.add(new JLabel("Appointment ID:")); form.add(idField);
+        form.add(new JLabel("Patient ID:"));      form.add(patientIdField);
+        form.add(new JLabel("Clinician ID:"));    form.add(clinicianIdField);
+        form.add(new JLabel("Facility ID:"));     form.add(facilityIdField);
+
+        form.add(new JLabel("Date (yyyy-MM-dd):")); form.add(dateField);
+        form.add(new JLabel("Time (HH:mm):"));      form.add(timeField);
+        form.add(new JLabel("Duration (minutes):"));//
+        form.add(durationField);
+
+        form.add(new JLabel("Type:"));   form.add(typeField);
+        form.add(new JLabel("Status:")); form.add(statusBox);
+        form.add(new JLabel("Reason:")); form.add(reasonField);
+
+        form.add(new JLabel("Notes:"));
+        form.add(notesScroll);
+
+        int result = JOptionPane.showConfirmDialog(
+                this,
+                form,
+                "Edit Appointment " + existing.getAppointmentId(),
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (result != JOptionPane.OK_OPTION) return;
+
+        try {
+            LocalDate newDate = dateField.getText().trim().isEmpty()
+                    ? null
+                    : LocalDate.parse(dateField.getText().trim());
+
+            LocalTime newTime = timeField.getText().trim().isEmpty()
+                    ? null
+                    : LocalTime.parse(timeField.getText().trim());
+
+            int newDuration = Integer.parseInt(durationField.getText().trim());
+
+            String newType = typeField.getText().trim();
+            AppointmentStatus newStatus = (AppointmentStatus) statusBox.getSelectedItem();
+            String newReason = reasonField.getText().trim();
+            String newNotes = notesArea.getText().trim();
+
+            Appointment updated = new Appointment(
+                    existing.getAppointmentId(),
+                    existing.getPatientId(),
+                    existing.getClinicianId(),
+                    existing.getFacilityId(),
+                    newDate,
+                    newTime,
+                    newDuration,
+                    newType,
+                    newStatus,
+                    newReason,
+                    newNotes
+            );
+
+            controller.update(updated);
+            refresh(); // or refresh()
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Invalid input: " + ex.getMessage(),
+                    "Edit Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
 
     private void refresh() {
         tableModel.setData(controller.getAll());

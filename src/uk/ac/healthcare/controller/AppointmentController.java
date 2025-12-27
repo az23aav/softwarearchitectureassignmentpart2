@@ -28,6 +28,10 @@ public class AppointmentController {
         store.appointments.put(appointment.getAppointmentId(), appointment);
     }
 
+    public void update(Appointment updated) {
+        store.appointments.put(updated.getAppointmentId(), updated);
+    }
+
     public void delete(String appointmentId) {
         store.appointments.remove(appointmentId);
     }
