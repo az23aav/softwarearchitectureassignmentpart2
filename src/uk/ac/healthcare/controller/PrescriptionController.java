@@ -1,5 +1,6 @@
 package uk.ac.healthcare.controller;
 
+import uk.ac.healthcare.service.PrescriptionManager;
 import uk.ac.healthcare.model.Prescription;
 import uk.ac.healthcare.repository.DataStore;
 import uk.ac.healthcare.repository.PrescriptionRepository;
@@ -41,6 +42,17 @@ public class PrescriptionController {
             repo.save(dataDir.resolve("prescriptions.csv"));
         } catch (Exception e) {
             throw new RuntimeException("Failed to save prescriptions.csv", e);
+        }
+    }
+    public Path exportToText(String prescriptionId) {
+        Prescription p = store.prescriptions.get(prescriptionId);
+        if (p == null) throw new IllegalArgumentException("Prescription not found: " + prescriptionId);
+
+        try {
+            Path outDir = dataDir.resolve("output");
+            return PrescriptionManager.getInstance().exportPrescription(p, outDir);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to export prescription text", e);
         }
     }
 }

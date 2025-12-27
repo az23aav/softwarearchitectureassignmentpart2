@@ -25,11 +25,13 @@ public class PrescriptionPanel extends JPanel {
         JButton addBtn = new JButton("Add");
         JButton deleteBtn = new JButton("Delete");
         JButton saveBtn = new JButton("Save");
+        JButton exportBtn = new JButton("Export Text");
 
         top.add(refreshBtn);
         top.add(addBtn);
         top.add(deleteBtn);
         top.add(saveBtn);
+        top.add(exportBtn);
 
         add(top, BorderLayout.NORTH);
         add(new JScrollPane(table), BorderLayout.CENTER);
@@ -45,9 +47,31 @@ public class PrescriptionPanel extends JPanel {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "Save error", JOptionPane.ERROR_MESSAGE);
             }
         });
+        exportBtn.addActionListener(e -> exportSelected());
 
         refresh();
     }
+
+    private void exportSelected() {
+        int row = table.getSelectedRow();
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Select a prescription first.");
+            return;
+        }
+
+        int modelRow = table.convertRowIndexToModel(row);
+        
+        String prescriptionId = (String) tableModel.getValueAt(modelRow, 0);
+
+        try {
+            java.nio.file.Path file = controller.exportToText(prescriptionId);
+            JOptionPane.showMessageDialog(this, "Saved:\n" + file.toAbsolutePath());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Export failed:\n" + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
 
     private void refresh() {
         tableModel.setData(controller.getAll());

@@ -1,0 +1,12 @@
+Prescription ID: RX001
+Patient ID: P001
+Clinician ID: C001
+Condition: UNKNOWN
+Drug: Simvastatin
+Dosage: 20mg
+Frequency: Once daily
+Duration(days): 28
+Quantity: 28 tablets
+Instructions: Take with evening meal
+Pharmacy: Boots Pharmacy Birmingham
+Status: ISSUED
