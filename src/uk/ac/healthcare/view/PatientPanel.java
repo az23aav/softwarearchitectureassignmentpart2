@@ -32,9 +32,11 @@ public class PatientPanel extends JPanel {
         JButton addBtn = new JButton("Add");
         JButton deleteBtn = new JButton("Delete");
         JButton saveBtn = new JButton("Save");
+        JButton editBtn = new JButton("Edit");
 
         top.add(refreshBtn);
         top.add(addBtn);
+        top.add(editBtn);
         top.add(deleteBtn);
         top.add(saveBtn);
         add(top, BorderLayout.NORTH);
@@ -49,6 +51,8 @@ public class PatientPanel extends JPanel {
         refreshBtn.addActionListener(e -> refreshTable());
 
         addBtn.addActionListener(e -> addPatient());
+
+        editBtn.addActionListener(e -> editSelectedPatient());
 
         deleteBtn.addActionListener(e -> deletePatient());
 
@@ -121,6 +125,55 @@ public class PatientPanel extends JPanel {
         List<Patient> patients = controller.getAll();
         tableModel.setPatients(patients);
     }
+
+    private void editSelectedPatient() {
+        int row = table.getSelectedRow();
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Select a patient first.");
+            return;
+        }
+        int modelRow = table.convertRowIndexToModel(row);
+
+        String patientId = (String) tableModel.getValueAt(modelRow, 0);
+        Patient p = controller.getById(patientId);
+        if (p == null) {
+            JOptionPane.showMessageDialog(this, "Patient not found.");
+            return;
+        }
+
+        JTextField firstName = new JTextField(p.getFirstName());
+        JTextField lastName  = new JTextField(p.getLastName());
+        JTextField email     = new JTextField(p.getEmail());
+        JTextField nhs       = new JTextField(p.getNhsNumber());
+        JTextField gpId      = new JTextField(p.getRegisteredSurgeryId());
+
+        JPanel form = new JPanel(new GridLayout(0, 2, 8, 8));
+        form.add(new JLabel("First name:")); form.add(firstName);
+        form.add(new JLabel("Last name:"));  form.add(lastName);
+        form.add(new JLabel("Email:"));      form.add(email);
+        form.add(new JLabel("NHS number:")); form.add(nhs);
+        form.add(new JLabel("GP surgery id:")); form.add(gpId);
+
+        int result = JOptionPane.showConfirmDialog(
+                this, form, "Edit Patient " + patientId,
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (result != JOptionPane.OK_OPTION) return;
+
+        Patient updated = new Patient(
+                patientId,
+                firstName.getText().trim(),
+                lastName.getText().trim(),
+                email.getText().trim(),
+                nhs.getText().trim(),
+                gpId.getText().trim()
+        );
+
+        controller.update(updated);
+        refreshTable();
+    }
+
 
     // TABLE MODEL
     private static class PatientTableModel extends AbstractTableModel {

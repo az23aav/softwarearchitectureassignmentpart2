@@ -60,7 +60,7 @@ public class PrescriptionPanel extends JPanel {
         }
 
         int modelRow = table.convertRowIndexToModel(row);
-        
+
         String prescriptionId = (String) tableModel.getValueAt(modelRow, 0);
 
         try {

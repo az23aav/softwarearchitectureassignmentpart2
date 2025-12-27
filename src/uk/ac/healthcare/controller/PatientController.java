@@ -43,6 +43,10 @@ public class PatientController {
             throw new RuntimeException("Failed to save patients.csv", e);
         }
     }
+
+    public void update(Patient patient) {
+        store.patients.put(patient.getUserId(), patient);
+    }
 }
 
 
