@@ -33,6 +33,10 @@ public class PrescriptionController {
         store.prescriptions.put(p.getPrescriptionId(), p);
     }
 
+    public void update(Prescription p) {
+        store.prescriptions.put(p.getPrescriptionId(), p);
+    }
+
     public void delete(String prescriptionId) {
         store.prescriptions.remove(prescriptionId);
     }

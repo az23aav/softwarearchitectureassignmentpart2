@@ -29,6 +29,10 @@ public class ReferralController {
         ReferralManager.getInstance().enqueue(referral); // optional but nice
     }
 
+    public void update(Referral r) {
+        store.referrals.put(r.getReferralId(), r);
+    }
+
     public void delete(String referralId) {
         store.referrals.remove(referralId);
     }
