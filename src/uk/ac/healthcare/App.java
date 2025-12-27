@@ -53,14 +53,16 @@ public class App {
         AppointmentController appointmentController = new AppointmentController(store, appointmentRepo, dataDir);
         ClinicianController clinicianController = new ClinicianController(store, clinicianRepo, dataDir);
         PrescriptionController prescriptionController = new PrescriptionController(store, prescriptionRepo, dataDir);
+        ReferralController referralController = new ReferralController(store, referralRepo, dataDir);
 
         SwingUtilities.invokeLater(() -> {
             PatientPanel patientPanel = new PatientPanel(patientController, patientRepo, dataDir);
             AppointmentPanel appointmentPanel = new AppointmentPanel(appointmentController);
             ClinicianPanel clinicianPanel = new ClinicianPanel(clinicianController);
             PrescriptionPanel prescriptionPanel = new PrescriptionPanel(prescriptionController);
+            ReferralPanel referralPanel = new ReferralPanel(referralController);
 
-            MainFrame frame = new MainFrame(patientPanel, appointmentPanel, clinicianPanel, prescriptionPanel);
+            MainFrame frame = new MainFrame(patientPanel, appointmentPanel, clinicianPanel, prescriptionPanel, referralPanel);
             frame.setVisible(true);
         });
     }

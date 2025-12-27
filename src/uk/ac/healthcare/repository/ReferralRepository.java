@@ -5,8 +5,11 @@ import uk.ac.healthcare.model.ReferralStatus;
 import uk.ac.healthcare.util.CsvUtils;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -62,6 +65,59 @@ public class ReferralRepository {
 
             store.referrals.put(referralId, referral);
         }
+    }
+
+    public void save(Path csv) throws IOException {
+        List<String> lines = new ArrayList<>();
+
+        // header must match referrals.csv
+        lines.add(String.join(",",
+                "referral_id",
+                "patient_id",
+                "referring_clinician_id",
+                "referred_to_clinician_id",
+                "referring_facility_id",
+                "referred_to_facility_id",
+                "referral_date",
+                "urgency_level",
+                "referral_reason",
+                "clinical_summary",
+                "requested_investigations",
+                "status",
+                "appointment_id",
+                "notes"
+        ));
+
+        for (Referral r : store.referrals.values()) {
+            lines.add(String.join(",",
+                    esc(r.getReferralId()),
+                    esc(r.getPatientId()),
+                    esc(r.getReferringClinicianId()),
+                    esc(r.getReferredToClinicianId()),
+                    esc(r.getReferringFacilityId()),
+                    esc(r.getReferredToFacilityId()),
+                    esc(r.getReferralDate() == null ? "" : r.getReferralDate().toString()),
+                    esc(r.getUrgencyLevel()),
+                    esc(r.getReason()),
+                    esc(r.getClinicalSummary()),
+                    esc(r.getRequestedInvestigations()),
+                    esc(r.getStatus() == null ? "" : r.getStatus().name()),
+                    esc(r.getAppointmentId()),
+                    esc(r.getNotes())
+            ));
+        }
+
+        Files.write(csv, lines, StandardCharsets.UTF_8);
+    }
+
+    // --- helpers ---
+
+    private static String esc(String s) {
+        if (s == null) return "";
+        String v = s;
+        boolean mustQuote = v.contains(",") || v.contains("\"") || v.contains("\n") || v.contains("\r");
+        v = v.replace("\"", "\"\"");
+        return mustQuote ? "\"" + v + "\"" : v;
     }
 
     private static String get(Map<String, String> r, String key) {

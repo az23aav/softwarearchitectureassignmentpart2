@@ -8,7 +8,8 @@ public class MainFrame extends JFrame {
     public MainFrame(JPanel patientPanel,
                      JPanel appointmentPanel,
                      JPanel clinicianPanel,
-                     JPanel prescriptionPanel) {
+                     JPanel prescriptionPanel,
+                     JPanel referralPanel) {
 
         setTitle("Healthcare System");
         setSize(1000, 650);
@@ -19,6 +20,8 @@ public class MainFrame extends JFrame {
         tabs.addTab("Clinicians", clinicianPanel);
         tabs.addTab("Appointments", appointmentPanel);
         tabs.addTab("Prescriptions", prescriptionPanel);
+        tabs.addTab("Referrals", referralPanel);
+
 
         setLayout(new BorderLayout());
         add(tabs, BorderLayout.CENTER);

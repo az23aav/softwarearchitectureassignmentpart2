@@ -1,0 +1,11 @@
+REFERRAL: R001
+Patient ID: P005
+From Clinician: C001 (Facility S001)
+To Clinician: C005 (Facility H001)
+Date: 2025-09-10
+Urgency: Routine
+Reason: Heart murmur investigation
+Clinical summary: 35-year-old male with Grade 2/6 systolic murmur detected during routine examination. No symptoms of chest pain or breathlessness.
+Investigations requested: Echocardiogram|ECG
+Status: COMPLETED
+Notes: Patient seen, echo normal

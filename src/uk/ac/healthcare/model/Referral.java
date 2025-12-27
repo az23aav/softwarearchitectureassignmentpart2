@@ -68,6 +68,22 @@ public class Referral {
         return status;
     }
 
+    public LocalDate getReferralDate() {return referralDate;}
+
+    public String getUrgencyLevel() {return urgencyLevel;}
+
+    public String getReason() {return reason;}
+
+    public String getClinicalSummary() {return clinicalSummary;}
+
+    public String getRequestedInvestigations() {return requestedInvestigations;}
+
+    public String getAppointmentId() {return appointmentId;}
+
+    public String getNotes() {return notes;}
+
+    public void setNotes(String notes) {this.notes = notes;}
+
     public void markSent() {
         this.status = ReferralStatus.SENT;
     }
